@@ -2,12 +2,13 @@ import subprocess
 import sys
 import yaml
 
+
 class PyreConfig(dict):
     def __init__(self, path=None, modules=None, python_version=None):
         self['modules'] = modules or self._loaded_modules()
         self['python'] = {
-            'version': ( python_version or
-                '{p.major}.{p.minor}.{p.micro}'.format(p=sys.version_info)
+            'version': python_version or'{p.major}.{p.minor}.{p.micro}'.format(
+                p=sys.version_info
             ),
         }
         self.path = path
@@ -21,7 +22,7 @@ class PyreConfig(dict):
             f.write(str(self))
 
     def _loaded_modules(self):
-        result = subprocess.check_output(['pip','freeze']).strip()
+        result = subprocess.check_output(['pip', 'freeze']).strip()
         modules = dict()
         for i in [x.split('==') for x in result.split('\n')]:
             modules[i[0]] = str(i[1])
