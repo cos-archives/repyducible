@@ -1,7 +1,7 @@
 import unittest
 import yaml
 
-from repyducible import PyreConfig
+from repyducible.config import PyreConfig
 
 
 class PyreConfigTestCase(unittest.TestCase):
@@ -24,3 +24,7 @@ class PyreConfigTestCase(unittest.TestCase):
             yaml.load(str(conf))['python']['version'],
             '1.2.3'
         )
+
+    def test_save_to_file(self):
+        conf = PyreConfig(path='conf.yaml')
+        conf.save()
