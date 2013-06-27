@@ -18,8 +18,16 @@ class PyreConfig(dict):
         return yaml.dump(dict(self))
 
     def save(self):
-        with open(self.path, 'w') as f:
-            f.write(str(self))
+        """Save the config to disk
+
+        :return: `None` if a string was passed to the class constructor; a file
+                 object if one was provided to the same.
+        """
+        if isinstance(self.path, basestring):
+            with open(self.path, 'w') as f:
+                f.write(str(self))
+        else:
+            self.path.write(str(self))
 
     def _loaded_modules(self):
         result = subprocess.check_output(['pip', 'freeze']).strip()
@@ -27,3 +35,11 @@ class PyreConfig(dict):
         for i in [x.split('==') for x in result.split('\n')]:
             modules[i[0]] = str(i[1])
         return modules
+
+
+def to_yaml(obj):
+    yaml.dump(
+        obj,
+        width=80,
+        indent=4,
+    )

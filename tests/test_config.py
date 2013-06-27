@@ -1,3 +1,4 @@
+from cStringIO import StringIO
 import unittest
 import yaml
 
@@ -5,6 +6,9 @@ from repyducible.config import PyreConfig
 
 
 class PyreConfigTestCase(unittest.TestCase):
+
+    TMP_CONF_PATH = tempfile.tempdir
+
     def test_add_module(self):
         conf = PyreConfig()
         conf['modules']['foo'] = '1.2.3'
@@ -26,5 +30,8 @@ class PyreConfigTestCase(unittest.TestCase):
         )
 
     def test_save_to_file(self):
-        conf = PyreConfig(path='conf.yaml')
+        f = StringIO()
+        conf = PyreConfig(path=f)
         conf.save()
+        self.assertEqual(
+            yaml.load(f.getvalue())
