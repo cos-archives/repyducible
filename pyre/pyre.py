@@ -21,6 +21,8 @@ import shutil
 import tempfile
 import zipfile
 
+from .config import PyreConfig
+
 
 def create_archive(source, destination,
                    overwrite=False):
@@ -62,7 +64,17 @@ def run_command(args=None):
         os.path.join(os.path.curdir, 'archive.pyre')
     )
 
+    # create a .pyre_config
+    config_file = os.path.join(input_path, '.pyre_config')
+    if os.path.isfile(config_file):
+        raise IOError('.pyre_config exists!')
+
+    config = PyreConfig(config_file)
+    config.save()
+
     create_archive(source=input_path, destination=output_path)
+
+    os.remove(config_file)
 
 if __name__ == '__main__':
     run_command(docopt(__doc__, version='0.0.1a'))

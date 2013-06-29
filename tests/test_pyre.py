@@ -24,6 +24,8 @@ class PyreExecutableTestCase(unittest.TestCase):
         # Archive was created
         self.assertTrue(os.path.isfile('archive.pyre'))
 
+        # TODO: Check to see if the archive is valid.
+
         os.remove('archive.pyre')
         os.chdir(os.pardir)
 
@@ -38,3 +40,8 @@ class PyreExecutableTestCase(unittest.TestCase):
 
         os.remove('renamed.pyre')
         os.chdir(os.pardir)
+
+    def test_arg_in(self):
+        pyre.run_command({'--in': 'simple_environment'})
+        self.assertTrue(os.path.isfile('archive.pyre'))
+        os.remove('archive.pyre')
