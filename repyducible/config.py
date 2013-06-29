@@ -4,17 +4,34 @@ import yaml
 
 
 class PyreConfig(dict):
-    def __init__(self, path=None, modules=None, python_version=None):
-        self['modules'] = modules or self._loaded_modules()
+    """The config state of the host system."""
+
+    def __init__(self, out=None, packages=None, python_version=None):
+        """
+
+
+        :param out: The path to the config file on disk; or, a file-like object
+                    to be returned by the `PyreConfig.save()` method.
+        :param packages: A list of packages to include. If not provided, this
+                         will be inferred from the current execution
+                         environmnet, via pip.
+        :param python_version: The specific python version to require. If not
+                                provided, it will be inferred from the execution
+                                environment.
+        """
+        self['packages'] = packages or self._installed_packages()
         self['python'] = {
             'version': python_version or'{p.major}.{p.minor}.{p.micro}'.format(
                 p=sys.version_info
             ),
         }
-        self.path = path
+        self.out = out
         super(PyreConfig, self).__init__()
 
     def __str__(self):
+        """
+        :return: A YAML representation of the configuration option.
+        """
         return yaml.dump(dict(self))
 
     def save(self):
@@ -23,18 +40,20 @@ class PyreConfig(dict):
         :return: `None` if a string was passed to the class constructor; a file
                  object if one was provided to the same.
         """
-        if isinstance(self.path, basestring):
-            with open(self.path, 'w') as f:
+        if isinstance(self.out, str):
+            with open(self.out, 'w') as f:
                 f.write(str(self))
         else:
-            self.path.write(str(self))
+            self.out.write(str(self))
 
-    def _loaded_modules(self):
+    def _installed_packages(self):
+        """Returns a dict of installed packages and their versions.
+        """
         result = subprocess.check_output(['pip', 'freeze']).strip()
-        modules = dict()
-        for i in [x.split('==') for x in result.split('\n')]:
-            modules[i[0]] = str(i[1])
-        return modules
+        packages = dict()
+        for i in [x.split('==') for x in str(result).split('\n')]:
+            packages[i[0]] = str(i[1])
+        return packages
 
 
 def to_yaml(obj):
