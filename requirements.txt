@@ -1,1 +1,2 @@
-ipython==0.13.2
+PyYAML==3.10
+distribute==0.6.34
