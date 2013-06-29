@@ -17,14 +17,42 @@ Options:
 from docopt import docopt
 
 import os
+import shutil
+import tempfile
+import zipfile
 
 
-def create_archive(source=None, out='archive.pyre'):
-    pass
+def create_archive(source, destination,
+                   overwrite=False):
+    """Create an archive of a directory
 
 
-def run_command(args):
+    :param source: The absolute path of the directory to be archived
+    :param destination: The absolute path to the archive file to be created
+    :return: On success, the path to the archive. On failure, ``None``.
+    """
+    dir_depth = len(source) + 1
+
+    if not overwrite and os.path.isfile(destination):
+        raise IOError('File exists.')
+
+    temp_file, temp_file_name = tempfile.mkstemp()
+
+    with zipfile.ZipFile(temp_file_name, 'w') as archive:
+        # add all files in the path
+        for base, dirs, files in os.walk(source):
+            for f in files:
+                file_path = os.path.join(base, f)
+                archive.write(file_path, file_path[dir_depth:])
+
+    shutil.move(temp_file_name, destination)
+    return destination
+
+
+def run_command(args=None):
     """Handles the call from the commandline"""
+
+    args = args or {}
 
     # default to the current path if necessary
     input_path = args.get('--in') or os.path.abspath(os.path.curdir)
@@ -34,9 +62,7 @@ def run_command(args):
         os.path.join(os.path.curdir, 'archive.pyre')
     )
 
-    print('in: {}'.format(input_path))
-    print('out: {}'.format(output_path))
+    create_archive(source=input_path, destination=output_path)
 
 if __name__ == '__main__':
     run_command(docopt(__doc__, version='0.0.1a'))
-

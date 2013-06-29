@@ -2,7 +2,7 @@ from io import StringIO
 import unittest
 import yaml
 
-from repyducible.config import PyreConfig
+from pyre.config import PyreConfig
 
 
 class PyreConfigTestCase(unittest.TestCase):

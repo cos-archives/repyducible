@@ -32,7 +32,7 @@ class PyreConfig(dict):
         """
         :return: A YAML representation of the configuration option.
         """
-        return yaml.dump(dict(self))
+        return to_yaml(dict(self))
 
     def save(self):
         """Save the config to disk
@@ -57,7 +57,7 @@ class PyreConfig(dict):
 
 
 def to_yaml(obj):
-    yaml.dump(
+    return yaml.dump(
         obj,
         width=80,
         indent=4,
