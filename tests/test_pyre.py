@@ -1,6 +1,8 @@
 import os
-import subprocess
+import shutil
+import tempfile
 import unittest
+import zipfile
 
 from pyre import pyre
 
@@ -9,7 +11,10 @@ class PyreExecutableTestCase(unittest.TestCase):
 
     def setUp(self):
         # create a directory in a temporary location for testing
-        self.test_path = os.path.abspath('examples/')
+        try:
+            self.path
+        except AttributeError:
+            self.test_path = os.path.abspath('examples/')
         os.chdir(self.test_path)
 
     def tearDown(self):
@@ -23,11 +28,12 @@ class PyreExecutableTestCase(unittest.TestCase):
 
         # Archive was created
         self.assertTrue(os.path.isfile('archive.pyre'))
+        self.assertTrue(zipfile.is_zipfile('archive.pyre'))
 
-        # TODO: Check to see if the archive is valid.
+        self._verify_zip('archive.pyre', os.getcwd())
 
         os.remove('archive.pyre')
-        os.chdir(os.pardir)
+        os.chdir(self.test_path)
 
     def test_arg_out(self):
         os.chdir('simple_environment')
@@ -45,3 +51,20 @@ class PyreExecutableTestCase(unittest.TestCase):
         pyre.run_command({'--in': 'simple_environment'})
         self.assertTrue(os.path.isfile('archive.pyre'))
         os.remove('archive.pyre')
+
+    def _verify_zip(self, zip_path, source_path):
+        archive = zipfile.ZipFile(zip_path)
+
+        # iterate over the files in the archive, make sure they're in the
+        # original, and that the .pyre_config exists.
+        has_config = False
+        files = archive.infolist()
+        for f in files:
+            if f.filename == '.pyre_config':
+                has_config = True
+                continue
+
+            self.assertTrue(os.path.isfile(
+                os.path.join(source_path, f.filename)
+            ))
+        self.assertTrue(has_config)
