@@ -1,3 +1,4 @@
+#!python
 """Pyre makes it easy to package and use reproducible Python environments.
 
 A pyre archive contains all of the information necessary to recreate the
@@ -72,9 +73,12 @@ def run_command(args=None):
     config = PyreConfig(config_file)
     config.save()
 
-    create_archive(source=input_path, destination=output_path)
-
-    os.remove(config_file)
+    try:
+        create_archive(source=input_path, destination=output_path)
+    except OSError:
+        raise
+    finally:
+        os.remove(config_file)
 
 if __name__ == '__main__':
     run_command(docopt(__doc__, version='0.0.1a'))

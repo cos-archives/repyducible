@@ -52,6 +52,13 @@ class PyreExecutableTestCase(unittest.TestCase):
         self.assertTrue(os.path.isfile('archive.pyre'))
         os.remove('archive.pyre')
 
+    def test_file_exists(self):
+        os.chdir('simple_environment')
+
+        with tempfile.NamedTemporaryFile() as archive:
+            with self.assertRaises(OSError):
+                pyre.run_command({'--out': archive.name})
+
     def _verify_zip(self, zip_path, source_path):
         archive = zipfile.ZipFile(zip_path)
 
